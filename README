@@ -1,0 +1,27 @@
+CP DEVOPS ASSIGNMENT
+
+Tomcat Sample application, built and monitored using Ansible
+
+
+This playbook assumes that the server running it has:
+
+Ansible 2.X
+Python 3.6+ (with pytest)
+Docker
+Port 8080 is available
+Internet access to pull the Tomcat docker image and python and ansible dependencies
+
+
+To run, the path where the files are located must be provided as a variable.:
+
+$ ansible-playbook tomcat.yml -e path=/opt/homework
+
+The playbook is organized using block/rescue:
+
+It will first install python dependencies if needed, then run the tests contained within
+test_tomcat.py using pytest. 
+
+If the exit code is not 0, one or more asserts have failed, and the rescue tasks are executed.
+They will build the docker image and run it, installing ansible galaxy docker module if needed.
+
+

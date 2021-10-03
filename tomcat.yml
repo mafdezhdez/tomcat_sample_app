@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: Check if tomcat is running, else re-run container 
+    block:
+          - name: Install python3 dependencies
+            pip:
+                 name:
+                      - docker
+                      - requests
+                 executable: pip3
+
+          - name: Check if tomcat is already running
+            command: python3 -m pytest "{{ path }}"/test_tomcat.py
+            register: test_result
+            failed_when: test_result.rc != 0
+          
+
+    rescue:
+           - name: Install ansible docker module
+             command: ansible-galaxy collection install community.docker 
+
+           - name: Build docker image
+             community.docker.docker_image:
+                 name: tomcat-sample-app:1.0.0
+                 build:
+                      path: "{{ path }}"
+                 source: build
+                 state: present
+
+           - name: Run docker container
+             community.docker.docker_container:
+                 name: tomcat-sample
+                 image: tomcat-sample-app:1.0.0
+                 ports: 8080:8080 
